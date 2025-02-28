@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System;
 using System.IO;
+using System.Threading;
 
 
 namespace UXF
@@ -28,6 +29,7 @@ namespace UXF
         [BasteRainGames.HideIf("httpBasicAuthentication", false)]
         public string password = "password";
 
+        private int transportCounter = 0;
 
         public override bool CheckIfRiskOfOverwrite(string experiment, string ppid, int sessionNum, string rootPath = "")
         {
@@ -178,6 +180,7 @@ namespace UXF
 
         IEnumerator SendRequest(UnityWebRequest www)
         {
+            Interlocked.Increment(ref transportCounter);
             yield return www.SendWebRequest();
 
             bool error;
@@ -191,6 +194,12 @@ namespace UXF
             if (error)
             {
                 Utilities.UXFDebugLogError(www.error);
+            }
+
+            Interlocked.Decrement(ref transportCounter);
+            if (transportCounter == 0)
+            {
+                Session.instance.transportDone.Invoke(this);
             }
         }
 

@@ -32,5 +32,13 @@ namespace UXF
     {
 
     }
+    
+    /// <summary>
+    /// Event that signals that a DataHandler is done
+    /// </summary>
+    [Serializable]
+    public class TransportDoneEvent : UnityEvent<DataHandler>
+    {
 
+    }
 }

@@ -134,6 +134,13 @@ namespace UXF
         /// <returns></returns>
         [Tooltip("Items in this event will be triggered just as the session ends, after data has been written. It is safe to quit the application using this event. You should not perform manual data operations in this event.")]
         public SessionEvent onSessionEnd = new SessionEvent();
+        
+        /// <summary>
+        /// Event(s) to trigger once all DataHandlers (for now only HTTPPost) have finished their transports, both after Trial and Session.
+        /// </summary>
+        /// <returns></returns>
+        [Tooltip("Items in this event will be triggered when the HTTPPost DataHandler have finished their transports, both after Trial and Session")]
+        public TransportDoneEvent transportDone = new TransportDoneEvent();
 
         /// <summary>
         /// Returns true when the session is in the process of ending. It is useful to query this in On Trial End events, since you may not need to perform some behaviour if the session is ending.
