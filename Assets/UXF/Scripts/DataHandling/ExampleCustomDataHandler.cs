@@ -121,6 +121,7 @@ namespace UXF.Examples
         public override void CleanUp()
         {
             // No cleanup is needed in this case. But you can add any code here that will be run when the session finishes.
+            session.transportDone.Invoke(this);
         }
         
     }

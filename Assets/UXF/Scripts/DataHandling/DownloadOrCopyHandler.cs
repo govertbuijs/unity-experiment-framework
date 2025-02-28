@@ -94,6 +94,7 @@ namespace UXF.UI
         public override void CleanUp()
         {
             displayUI.SetActive(true);
+            session.transportDone.Invoke(this);
         }
 
         void CreateNewItem(string content, string filename, bool pushToTop = false)

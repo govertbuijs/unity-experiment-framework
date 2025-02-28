@@ -278,9 +278,12 @@ namespace UXF
         public override void CleanUp()
         {
             bool ok = CheckCurrentTargetOK();
-            if (!ok) return;
-            DDB_Cleanup();
-            requestCallbackMap.Clear();
+            if (ok)
+            {
+                DDB_Cleanup();
+                requestCallbackMap.Clear();
+            }
+            session.transportDone.Invoke(this);
         }
 
 

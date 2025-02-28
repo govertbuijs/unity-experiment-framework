@@ -291,6 +291,8 @@ namespace UXF
             quitting = true;
             bq.Enqueue(doNothing); // ensures bq breaks from foreach loop
             parallelThread.Join();
+            // session doesn't exist in the tests 
+            session?.transportDone.Invoke(this);
         }
 
         public static string GetRelativePath(string relativeToDirectory, string path)

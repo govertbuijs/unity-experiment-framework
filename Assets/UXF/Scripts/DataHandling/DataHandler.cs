@@ -24,7 +24,7 @@ namespace UXF
         public abstract string HandleJSONSerializableObject(Dictionary<string, object> serializableObject, string experiment, string ppid, int sessionNum, string dataName, UXFDataType dataType, int optionalTrialNumber = 0);
         public abstract string HandleText(string text, string experiment, string ppid, int sessionNum, string dataName, UXFDataType dataType, int optionalTrialNumber = 0);
         public abstract string HandleBytes(byte[] bytes, string experiment, string ppid, int sessionNum, string dataName, UXFDataType dataType, int optionalTrialNumber = 0);
-        public virtual void CleanUp() { }
+        public virtual void CleanUp() { session.transportDone.Invoke(this); }
 
 # if UNITY_EDITOR
         /// <summary>

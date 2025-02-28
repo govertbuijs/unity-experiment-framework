@@ -29,7 +29,7 @@ namespace UXF
         [BasteRainGames.HideIf("httpBasicAuthentication", false)]
         public string password = "password";
 
-        private int transportCounter = 0;
+        private int transportCounter;
 
         public override bool CheckIfRiskOfOverwrite(string experiment, string ppid, int sessionNum, string rootPath = "")
         {
@@ -199,7 +199,7 @@ namespace UXF
             Interlocked.Decrement(ref transportCounter);
             if (transportCounter == 0)
             {
-                Session.instance.transportDone.Invoke(this);
+                session.transportDone.Invoke(this);
             }
         }
 

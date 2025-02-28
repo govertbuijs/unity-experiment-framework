@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections.Specialized;
+using System.Threading;
 using UnityEngine.Events;
 using SubjectNerd.Utilities;
 
@@ -134,13 +135,19 @@ namespace UXF
         /// <returns></returns>
         [Tooltip("Items in this event will be triggered just as the session ends, after data has been written. It is safe to quit the application using this event. You should not perform manual data operations in this event.")]
         public SessionEvent onSessionEnd = new SessionEvent();
-        
+
         /// <summary>
         /// Event(s) to trigger once all DataHandlers (for now only HTTPPost) have finished their transports, both after Trial and Session.
         /// </summary>
         /// <returns></returns>
         [Tooltip("Items in this event will be triggered when the HTTPPost DataHandler have finished their transports, both after Trial and Session")]
         public TransportDoneEvent transportDone = new TransportDoneEvent();
+
+        /// <summary>
+        /// During Ending, set to active DataHandlers count. Decrement with received TransportDoneEvents.
+        /// </summary>
+        /// <value></value>
+        private int transportDoneCounter = 0;
 
         /// <summary>
         /// Returns true when the session is in the process of ending. It is useful to query this in On Trial End events, since you may not need to perform some behaviour if the session is ending.
@@ -680,6 +687,9 @@ namespace UXF
                     SaveDataTable(ppDetailsTable, "participant_details", dataType: UXFDataType.ParticipantDetails);
                 }
 
+                transportDoneCounter = ActiveDataHandlers.Count();
+                transportDone.AddListener(ActualEnd);
+                
                 // end DataHandlers - forces completion of tasks
                 foreach (var dataHandler in ActiveDataHandlers)
                 {
@@ -687,17 +697,43 @@ namespace UXF
                     catch (Exception e) { Debug.LogException(e); }
                 }
                 
-                try { onSessionEnd.Invoke(this); }
-                catch (Exception e) { Debug.LogException(e); }
+                // No DataHandlers
+                if (!ActiveDataHandlers.Any())
+                {
+                    ActualEnd(null);
+                }
+                
+            }
+        }
 
+        /// <summary>
+        /// Actually end the experiment session after all the transports from the DataHandlers are done.
+        /// </summary>
+        private void ActualEnd(DataHandler dataHandler)
+        {
+            Interlocked.Decrement(ref transportDoneCounter);
+            
+            // Still waiting from other DataHandler(s)
+            if (transportDoneCounter > 0)
+            {
+                return;
+            }
+
+            // All DataHandlers are done transporting
+            try
+            {
                 currentTrialNum = 0;
                 currentBlockNum = 0;
                 blocks = new List<Block>();
                 _hasInitialised = false;
-
-                Utilities.UXFDebugLog("Ended session.");
                 isEnding = false;
+
+                onSessionEnd.Invoke(this);
+                Utilities.UXFDebugLog("Ended session.");
+                
+                transportDone.RemoveListener(ActualEnd);
             }
+            catch (Exception e) { Debug.LogException(e); }
         }
 
         void SaveResults()
